@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Pharmacy | Interactive Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#15966b;--deep:#0c6049;--mint:#e9f7f1;--ink:#142b25;--muted:#6d817a;--line:#e5eee9;--bg:#fbfdfc;
+  --soft:#f2f8f4;--warn-bg:#fff5df;--warn-ink:#bd8c34;--danger-bg:#fff0ef;--danger-ink:#c55b55;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,input{font-family:inherit}
+
+.topbar{height:76px;padding:0 max(calc((100vw - 1160px)/2),5.5vw);display:flex;align-items:center;justify-content:space-between;background:#ffffffed;backdrop-filter:blur(14px);border-bottom:1px solid #eaf1ed;position:sticky;top:0;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;font:800 19px Manrope,sans-serif;letter-spacing:-.8px}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--green);color:#fff;font-size:20px}
+.brand-light{font-weight:500;color:#729087}
+.topbar nav{display:flex;gap:22px;color:#597069;font-size:13px;font-weight:600}
+.topbar nav a:hover{color:var(--green)}
+.nav-cta{font-size:12.5px;font-weight:700;color:var(--deep);border:1px solid #cfe5da;padding:9px 14px;border-radius:10px;background:#fff;cursor:pointer}
+.nav-cta:hover{background:var(--mint)}
+.menu-toggle{display:none;background:none;border:0;font-size:23px;cursor:pointer}
+
+.section{max-width:1160px;margin:auto;padding:80px 0}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:48px;padding-top:65px;padding-bottom:75px}
+.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--green);margin-bottom:16px;text-transform:uppercase}
+.pulse{display:inline-block;width:7px;height:7px;background:#26bd85;border-radius:50%;margin-right:8px;box-shadow:0 0 0 5px #e2f6ed}
+h1{font:800 clamp(40px,4.8vw,62px)/1.08 Manrope,sans-serif;letter-spacing:-2.8px;margin:0 0 18px}
+.hero h1 span{color:var(--green)}
+.hero-lead{font-size:15px;line-height:1.75;color:#667d74;max-width:520px;margin:0}
+.hero-actions{display:flex;align-items:center;gap:14px;margin-top:26px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:10px;font-weight:700;font-size:13px;transition:.15s;border:0;cursor:pointer}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 8px 22px #15966b2b}
+.btn-primary:hover{background:var(--deep)}
+.btn-outline{background:#fff;color:var(--deep);border:1px solid #cfe5da}
+.btn-outline:hover{background:var(--mint)}
+
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
+.kpi-box{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px 14px}
+.kpi-box b{display:block;font:800 19px Manrope,sans-serif;color:var(--deep)}
+.kpi-box small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+
+.hero-visual{height:420px;position:relative;display:grid;place-items:center;background:radial-gradient(ellipse at center,#e8f8ef 0,#f4fbf7 45%,transparent 72%)}
+.orbit{position:absolute;border:1px solid #d4ecdf;border-radius:50%;transform:rotate(-22deg)}
+.orbit-one{width:370px;height:260px}
+.orbit-two{width:280px;height:390px;transform:rotate(55deg)}
+.medical-core{width:155px;height:155px;border-radius:44px;background:linear-gradient(145deg,#1eae7e,#087353);box-shadow:0 28px 60px #08735342;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transform:rotate(-8deg);z-index:2}
+.core-cross{font-size:58px;line-height:1}
+.core-caption{font:800 9px Manrope;letter-spacing:3px;text-align:center;margin-top:6px}
+.float-card{position:absolute;z-index:3;display:flex;align-items:center;gap:10px;background:#fff;padding:12px 14px;border:1px solid #e6f0e9;border-radius:13px;box-shadow:0 15px 38px #184f3511;min-width:198px}
+.float-card b,.float-card small{display:block}
+.float-card b{font-size:11.5px}.float-card small{font-size:9.5px;color:#82948d;margin-top:2px}
+.wa-card{top:40px;left:0}.ai-card{top:140px;right:0}.stock-card{bottom:75px;left:0}.human-card{bottom:20px;right:0}
+.app-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;font-weight:700}
+.whatsapp{background:#e4f8ec;color:#159b61}.ai{background:#eaf1ff;color:#5678ce}.stock{background:#fff3df;color:#d99b35}.human{background:#f0eaff;color:#8466c5}
+
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:36px;margin-bottom:32px}
+.section-head h2,.contact h2{font:800 clamp(28px,3.6vw,42px)/1.15 Manrope,sans-serif;letter-spacing:-1.6px;margin:0}
+.section-head p{max-width:410px;color:var(--muted);font-size:14px;margin:0}
+
+.sim-band{background:#f3faf6;border-block:1px solid #e1efe7}
+.sim-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.scenario-pills{display:flex;flex-wrap:wrap;gap:8px}
+.sc-btn{background:#fff;border:1px solid #cfe3d8;color:var(--ink);padding:8px 12px;border-radius:9px;font-size:11.5px;font-weight:600;cursor:pointer}
+.sc-btn:hover{background:var(--mint);border-color:var(--green);color:var(--deep)}
+.sc-btn.active{background:var(--deep);color:#fff;border-color:var(--deep)}
+.reset-btn{background:#fff;border:1px solid #e2d5d5;color:#a84944;padding:8px 13px;border-radius:9px;font-size:11.5px;font-weight:700;cursor:pointer}
+.reset-btn:hover{background:#fff0ef}
+
+.sim-grid{display:grid;grid-template-columns:1.1fr .9fr 1.1fr;gap:16px}
+.sim-card{background:#fff;border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 14px 36px #123c2508;min-height:460px}
+.sim-card-head{padding:13px 16px;border-bottom:1px solid #edf3ef;display:flex;align-items:center;justify-content:space-between;background:#fafdfb}
+.sim-card-title{display:flex;align-items:center;gap:10px}
+.sim-avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800}
+.sim-avatar.wa{background:#e4f8ec;color:#159b61}.sim-avatar.n8n{background:#102e27;color:#7ce0b4}.sim-avatar.tg{background:#eaf1ff;color:#4e73cf}
+.sim-card-title b{display:block;font-size:12.5px;font-family:Manrope,sans-serif}
+.sim-card-title small{display:block;font-size:10px;color:var(--muted)}
+.badge-live{font-size:9px;font-weight:800;padding:4px 8px;border-radius:6px;background:var(--mint);color:var(--deep)}
+
+.chat-body{flex:1;padding:14px;background:#f4f9f6;overflow-y:auto;display:flex;flex-direction:column;gap:9px;max-height:325px}
+.msg{max-width:86%;padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.5;white-space:pre-line}
+.msg.user{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:3px}
+.msg.bot{align-self:flex-start;background:#fff;color:var(--ink);border:1px solid #e2eee7;border-bottom-left-radius:3px}
+.msg-meta{display:block;font-size:9px;opacity:.7;margin-top:4px;text-align:right}
+.chat-quick{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid #edf3ef;overflow-x:auto}
+.quick-chip{font-size:10.5px;font-weight:600;background:var(--soft);color:var(--deep);border:1px solid #d9ece1;padding:5px 9px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.quick-chip:hover{background:var(--mint)}
+.chat-input-bar{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #edf3ef}
+.chat-input-bar input{flex:1;border:1px solid #d7e7de;border-radius:9px;padding:9px 12px;font-size:12px;outline:none}
+.chat-send{background:var(--green);color:#fff;border:0;border-radius:9px;padding:0 14px;font-weight:700;font-size:12px;cursor:pointer}
+.chat-send:hover{background:var(--deep)}
+
+.exec-body{flex:1;padding:14px;background:#10231e;color:#d6ebe0;font-family:'JetBrains Mono',monospace;font-size:11px;overflow-y:auto;max-height:405px;display:flex;flex-direction:column;gap:8px}
+.node-step{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border-radius:8px;background:#16312a;border:1px solid #25483e}
+.node-dot{width:8px;height:8px;border-radius:50%;background:#3bd18f;margin-top:4px;flex-shrink:0}
+.node-step.warn .node-dot{background:#f0b849}.node-step.err .node-dot{background:#eb6b63}
+.node-step b{display:block;color:#fff;font-size:11px}.node-step span{display:block;color:#93b8a8;font-size:10px;margin-top:2px}
+.exec-empty{color:#789b8d;text-align:center;margin:auto;font-size:11px;padding:20px}
+
+.tg-body{flex:1;padding:14px;background:#f7f9fc;overflow-y:auto;max-height:405px;display:flex;flex-direction:column;gap:11px}
+.tg-card{background:#fff;border:1px solid #dfe7f2;border-radius:12px;padding:13px;box-shadow:0 6px 18px #1a2d4c08}
+.tg-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tg-tag{font-size:9px;font-weight:800;padding:3px 7px;border-radius:5px;background:var(--warn-bg);color:var(--warn-ink)}
+.tg-tag.reserved{background:var(--mint);color:var(--green)}.tg-tag.rejected{background:var(--danger-bg);color:var(--danger-ink)}
+.tg-details{font-size:11.5px;color:#2b3e38;line-height:1.55}
+.tg-reason{font-size:10.5px;background:#f4f7ff;color:#4f68a8;padding:7px 9px;border-radius:7px;margin:8px 0}
+.tg-actions{display:flex;gap:8px;margin-top:10px}
+.tg-actions button{flex:1;border:0;border-radius:8px;padding:9px;font-size:11px;font-weight:700;cursor:pointer}
+.btn-approve{background:var(--green);color:#fff}.btn-approve:hover{background:var(--deep)}
+.btn-reject{background:var(--danger-bg);color:var(--danger-ink)}.btn-reject:hover{background:#ffe0de}
+.tg-empty{color:var(--muted);text-align:center;margin:auto;font-size:12px;padding:24px}
+
+.sheets-panel{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 16px 40px #123c2508}
+.sheets-header{padding:15px 20px;background:#f8fcfa;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.sheet-tabs,.filter-pills{display:flex;gap:8px;flex-wrap:wrap}
+.sheet-tab{padding:8px 14px;border-radius:9px;border:1px solid #d9ebe1;background:#fff;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+.sheet-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.filter-pill{padding:5px 10px;border-radius:6px;border:1px solid #e2eee7;background:#fff;font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.filter-pill.active{background:var(--deep);color:#fff;border-color:var(--deep)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+th{background:#f3faf6;color:var(--deep);font:700 10.5px Manrope,sans-serif;text-transform:uppercase;letter-spacing:.7px;padding:12px 15px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 15px;border-bottom:1px solid #f0f6f2;color:#2c423b;white-space:nowrap}
+.st-pill{display:inline-block;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:800}
+.st-reserved{background:var(--mint);color:var(--green)}.st-pending_pharmacist{background:var(--warn-bg);color:var(--warn-ink)}
+.st-rejected{background:var(--danger-bg);color:var(--danger-ink)}.st-expired{background:#eef1f0;color:#687873}
+.st-low{background:#fff0ef;color:#c55b55}.st-ok{background:#e9f7f1;color:#15966b}
+
+.inv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}
+.inv-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px}
+.inv-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:6px}
+.inv-top b{font-size:12px;font-family:Manrope,sans-serif}.inv-top span{font-size:10.5px;font-weight:700}
+.inv-bar{height:7px;background:#edf4f0;border-radius:99px;overflow:hidden;margin-bottom:7px}
+.inv-fill{height:100%;border-radius:99px;transition:width .3s}
+.inv-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+
+.json-layout{display:grid;grid-template-columns:300px 1fr;gap:16px}
+.json-list{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;height:max-content}
+.json-choice{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:12px 10px;background:#fff;border:1px solid transparent;border-radius:9px;cursor:pointer;margin-bottom:6px}
+.json-choice.active{background:#f1faf5;border-color:#d9eee2}
+.json-file-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e7f6ed;color:#15966b;font-weight:800}
+.json-choice b,.json-choice small{display:block}.json-choice b{font-size:11px}.json-choice small{font-size:9.5px;color:#8b9d95}
+.code-panel{background:#10231e;border-radius:13px;overflow:hidden;min-width:0}
+.code-top,.code-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.code-top{height:46px;background:#18352c;color:#a8beb3;font-size:10px}
+.code-top button{background:#284a3d;color:#d4e7dc;border:1px solid #416554;border-radius:6px;padding:6px 10px;font-size:10px;cursor:pointer}
+.code-panel pre{margin:0;padding:18px;max-height:340px;overflow:auto;color:#b6e0c8;font:10.5px/1.6 'JetBrains Mono',monospace}
+.code-foot{border-top:1px solid #254438;color:#719183;font-size:8.5px;letter-spacing:1px}
+
+.contact{background:linear-gradient(120deg,#0e6049,#15966b);color:#fff}
+.contact-inner{max-width:1160px;margin:auto;padding:58px 0;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.contact p{max-width:520px;color:#d2eee1;font-size:13.5px;margin:8px 0 0}
+.btn-white{background:#fff;color:#126b4e}
+footer{height:76px;max-width:1160px;margin:auto;display:flex;align-items:center;justify-content:space-between;color:#899a92;font-size:11px}
+
+@media(max-width:1200px){.section,.contact-inner,footer{margin-left:5.5vw;margin-right:5.5vw}.topbar{padding:0 5.5vw}}
+@media(max-width:980px){.sim-grid{grid-template-columns:1fr}.inv-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){
+  .topbar nav{display:none;position:absolute;top:76px;left:0;right:0;background:#fff;padding:18px 6vw;flex-direction:column;gap:14px;border-bottom:1px solid var(--line)}
+  .topbar nav.open{display:flex}.nav-cta{display:none}.menu-toggle{display:block}
+  .hero{grid-template-columns:1fr}.kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .section-head{display:block}.json-layout{grid-template-columns:1fr}.contact-inner{display:block}.contact .btn{margin-top:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#home"><span class="brand-mark">✚</span><span>smart<span class="brand-light">pharmacy</span></span></a>
+  <nav id="nav">
+    <a href="#simulator">Live Simulator</a>
+    <a href="#sheets">Live Sheets</a>
+    <a href="#json">Workflow JSON</a>
+  </nav>
+  <button class="nav-cta" id="jumpSimBtn">Test Simulator ↓</button>
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+</header>
+
+<main>
+  <section class="hero section" id="home">
+    <div>
+      <div class="eyebrow"><span class="pulse"></span> AI-POWERED PHARMACY COMMAND CENTER</div>
+      <h1>Smarter Pharmacy.<br><span>Better Care.</span></h1>
+      <p class="hero-lead">Interactive pharmacy request simulator connected to live stock rules, fuzzy matching, pharmacist Telegram approval, and real-time sheet updates.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#simulator">Launch Live Simulator ↓</a>
+        <a class="btn btn-outline" href="#sheets">Inspect Catalog & Stock</a>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi-box"><b>10 SKUs</b><small>Loaded from Dawaa Catalog</small></div>
+        <div class="kpi-box"><b>7 Scenarios</b><small>Auto, Fuzzy, Rx, Voice & Cron</small></div>
+        <div class="kpi-box"><b>120 Min</b><small>Reservation window</small></div>
+        <div class="kpi-box"><b>Human-in-Loop</b><small>Pharmacist Telegram review</small></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="orbit orbit-one"></div>
+      <div class="orbit orbit-two"></div>
+      <div class="medical-core"><div class="core-cross">✚</div><div class="core-caption">SMART<br>CARE</div></div>
+      <div class="float-card wa-card"><span class="app-icon whatsapp">◉</span><div><b>WhatsApp Request</b><small>Text, photo or voice</small></div></div>
+      <div class="float-card ai-card"><span class="app-icon ai">✧</span><div><b>AI Extraction</b><small>Extract · Fuzzy Match · Route</small></div></div>
+      <div class="float-card stock-card"><span class="app-icon stock">▤</span><div><b>Stock Check</b><small>Live catalog deduction</small></div></div>
+      <div class="float-card human-card"><span class="app-icon human">♙</span><div><b>Pharmacist Approval</b><small>Approve or reject</small></div></div>
+    </div>
+  </section>
+
+  <section class="sim-band" id="simulator">
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">INTERACTIVE SIMULATOR</div>
+          <h2>WhatsApp ↔ n8n ↔ Telegram</h2>
+        </div>
+        <p>Click any scenario button or type a medicine name below to see live execution steps, Telegram approvals, and sheet updates.</p>
+      </div>
+
+      <div class="sim-toolbar">
+        <div class="scenario-pills" id="scenarioBar">
+          <button type="button" class="sc-btn" data-sc="auto">⚡ 1. Auto Reserve (Panadol)</button>
+          <button type="button" class="sc-btn" data-sc="fuzzy">🔍 2. Fuzzy Match ("Soncor")</button>
+          <button type="button" class="sc-btn" data-sc="controlled">🔒 3. Controlled Drug (Xanax)</button>
+          <button type="button" class="sc-btn" data-sc="rx">📸 4. Prescription Photo</button>
+          <button type="button" class="sc-btn" data-sc="voice_hi">🎙️ 5. Clear Voice (Abimol)</button>
+          <button type="button" class="sc-btn" data-sc="voice_lo">🎙️ 6. Unclear Voice (Concor)</button>
+          <button type="button" class="sc-btn" data-sc="expire">⏰ 7. Trigger 2h Expiry Cron</button>
+        </div>
+        <button type="button" class="reset-btn" id="resetBtn">↺ Reset Data</button>
+      </div>
+
+      <div class="sim-grid">
+        <div class="sim-card">
+          <div class="sim-card-head">
+            <div class="sim-card-title"><div class="sim-avatar wa">◉</div><div><b>WhatsApp Customer</b><small>Interactive chat</small></div></div>
+            <span class="badge-live">ONLINE</span>
+          </div>
+          <div class="chat-body" id="waChat"></div>
+          <div class="chat-quick" id="quickChips">
+            <button type="button" class="quick-chip" data-msg="Panadol 2">Panadol 2</button>
+            <button type="button" class="quick-chip" data-msg="Soncor 1">Soncor (typo)</button>
+            <button type="button" class="quick-chip" data-msg="Xanax 1">Xanax (controlled)</button>
+            <button type="button" class="quick-chip" data-msg="Cidophage 1">Cidophage (0 stock)</button>
+          </div>
+          <form class="chat-input-bar" id="chatForm">
+            <input type="text" id="chatInput" placeholder="Type medicine name e.g. Panadol, Augmentin..." autocomplete="off">
+            <button type="submit" class="chat-send" id="chatSendBtn">Send</button>
+          </form>
+        </div>
+
+        <div class="sim-card">
+          <div class="sim-card-head">
+            <div class="sim-card-title"><div class="sim-avatar n8n">⚙</div><div><b>n8n Pipeline Trace</b><small>Node execution log</small></div></div>
+            <span class="badge-live" id="n8nBadge">IDLE</span>
+          </div>
+          <div class="exec-body" id="n8nLog">
+            <div class="exec-empty">Click a scenario button or send a message to run the workflow trace.</div>
+          </div>
+        </div>
+
+        <div class="sim-card">
+          <div class="sim-card-head">
+            <div class="sim-card-title"><div class="sim-avatar tg">♙</div><div><b>Pharmacist Telegram</b><small>Human approval queue</small></div></div>
+            <span class="badge-live" id="tgBadge">0 PENDING</span>
+          </div>
+          <div class="tg-body" id="tgQueue">
+            <div class="tg-empty">No pending items. Trigger a fuzzy match, controlled drug, or prescription scenario.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="sheets">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">LIVE DATA SHEETS</div>
+        <h2>Reservations, Catalog & Errors</h2>
+      </div>
+      <p>Synced directly with your 10-item catalog and updating live as orders are reserved, approved, rejected, or expired.</p>
+    </div>
+
+    <div class="sheets-panel">
+      <div class="sheets-header">
+        <div class="sheet-tabs" id="sheetTabs">
+          <button type="button" class="sheet-tab active" data-tab="reservations">📋 Reservations</button>
+          <button type="button" class="sheet-tab" data-tab="catalog">📦 Catalog (10)</button>
+          <button type="button" class="sheet-tab" data-tab="errors">🚨 Errors</button>
+        </div>
+        <div class="filter-pills" id="filterBar">
+          <button type="button" class="filter-pill active" data-filter="all">All</button>
+          <button type="button" class="filter-pill" data-filter="reserved">Reserved</button>
+          <button type="button" class="filter-pill" data-filter="pending_pharmacist">Pending</button>
+          <button type="button" class="filter-pill" data-filter="rejected">Rejected</button>
+          <button type="button" class="filter-pill" data-filter="expired">Expired</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="tableArea"></div>
+    </div>
+
+    <div class="inv-grid" id="invGrid"></div>
+  </section>
+
+  <section class="section" id="json" style="padding-top:10px">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">WORKFLOW JSON</div>
+        <h2>Sanitized n8n Exports</h2>
+      </div>
+      <p>Inspect, copy, or download the sanitized Main and Operations workflow JSON definitions.</p>
+    </div>
+    <div class="json-layout">
+      <div class="json-list">
+        <button type="button" class="json-choice active" id="btnWfMain"><span class="json-file-icon">{}</span><span><b>Main Pharmacy Workflow</b><small>Requests · AI · Reservations</small></span></button>
+        <button type="button" class="json-choice" id="btnWfOps"><span class="json-file-icon">{}</span><span><b>Operations & Cron Workflow</b><small>Errors · Expiry · Reorder</small></span></button>
+        <button type="button" class="btn btn-primary" style="width:100%;margin-top:10px" id="downloadWfBtn">Download JSON ↓</button>
+      </div>
+      <div class="code-panel">
+        <div class="code-top"><span id="wfName">smart-pharmacy-main.json</span><button type="button" id="copyWfBtn">Copy JSON</button></div>
+        <pre><code id="wfCode"></code></pre>
+        <div class="code-foot"><span>SANITIZED SHOWCASE</span><span>READ ONLY</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact">
+    <div class="contact-inner">
+      <div>
+        <div class="eyebrow">SMART PHARMACY</div>
+        <h2>Smarter Pharmacy. Better Care.</h2>
+        <p>Automated medicine requests with pharmacist supervision and live stock accuracy.</p>
+      </div>
+      <a class="btn btn-white" href="#simulator">Back to Simulator ↑</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <a class="brand" href="#home"><span class="brand-mark">✚</span><span>smart<span class="brand-light">pharmacy</span></span></a>
+  <span>Dawaa Pharmacy Interactive Demo</span>
+  <span>© <span id="yr"></span></span>
+</footer>
+
+<script>
+(function() {
+  const INITIAL_CATALOG = [{"sku": "P001", "name": "Panadol", "active_ingredient": "paracetamol", "strength": "500 mg", "form": "tablets x24", "price_egp": 45, "stock": 32, "reorder_level": 10, "controlled": "no"}, {"sku": "P002", "name": "Abimol", "active_ingredient": "paracetamol", "strength": "500 mg", "form": "tablets x20", "price_egp": 25, "stock": 60, "reorder_level": 10, "controlled": "no"}, {"sku": "P003", "name": "Brufen", "active_ingredient": "ibuprofen", "strength": "400 mg", "form": "tablets x30", "price_egp": 62, "stock": 8, "reorder_level": 10, "controlled": "no"}, {"sku": "P004", "name": "Augmentin", "active_ingredient": "amoxicillin/clavulanate", "strength": "1 g", "form": "tablets x14", "price_egp": 185, "stock": 15, "reorder_level": 5, "controlled": "no"}, {"sku": "P005", "name": "Megamox", "active_ingredient": "amoxicillin/clavulanate", "strength": "1 g", "form": "tablets x14", "price_egp": 120, "stock": 22, "reorder_level": 5, "controlled": "no"}, {"sku": "P006", "name": "Concor", "active_ingredient": "bisoprolol", "strength": "5 mg", "form": "tablets x30", "price_egp": 98, "stock": 12, "reorder_level": 5, "controlled": "no"}, {"sku": "P007", "name": "Glucophage", "active_ingredient": "metformin", "strength": "850 mg", "form": "tablets x50", "price_egp": 58, "stock": 30, "reorder_level": 10, "controlled": "no"}, {"sku": "P008", "name": "Cidophage", "active_ingredient": "metformin", "strength": "850 mg", "form": "tablets x50", "price_egp": 38, "stock": 0, "reorder_level": 10, "controlled": "no"}, {"sku": "P009", "name": "Xanax", "active_ingredient": "alprazolam", "strength": "0.5 mg", "form": "tablets x30", "price_egp": 70, "stock": 5, "reorder_level": 2, "controlled": "yes"}, {"sku": "P010", "name": "Antinal", "active_ingredient": "nifuroxazide", "strength": "200 mg", "form": "capsules x24", "price_egp": 30, "stock": 50, "reorder_level": 10, "controlled": "no"}];
+  const INITIAL_RESERVATIONS = [];
+  const INITIAL_ERRORS = [];
+  const WORKFLOWS = {
+    main: { name: 'smart-pharmacy-main.json', data: {"name": "Smart Pharmacy — Main Workflow (Sanitized)", "nodes": [{"id": "1", "name": "WhatsApp Trigger", "type": "n8n-nodes-base.whatsAppTrigger", "typeVersion": 1, "position": [-608, 528], "parameters": {"updates": ["messages"]}}, {"id": "2", "name": "Normalize Message", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-384, 528], "parameters": {}}, {"id": "3", "name": "Is Media?", "type": "n8n-nodes-base.if", "typeVersion": 2.4, "position": [-160, 528], "parameters": {}}, {"id": "4", "name": "AI Read Request", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.5, "position": [736, 544], "parameters": {}}, {"id": "5", "name": "Read Catalog", "type": "n8n-nodes-base.googleSheets", "typeVersion": 4.7, "position": [1008, 528], "parameters": {}}, {"id": "6", "name": "Match Catalog", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1232, 528], "parameters": {}}, {"id": "7", "name": "Route Request", "type": "n8n-nodes-base.switch", "typeVersion": 3.5, "position": [1456, 528], "parameters": {}}, {"id": "8", "name": "Save Reservation Lines", "type": "n8n-nodes-base.googleSheets", "typeVersion": 4.7, "position": [1904, 640], "parameters": {}}, {"id": "9", "name": "Update Stock", "type": "n8n-nodes-base.googleSheets", "typeVersion": 4.7, "position": [2512, 640], "parameters": {}}, {"id": "10", "name": "Confirm Reservation", "type": "n8n-nodes-base.whatsApp", "typeVersion": 1.1, "position": [2720, 640], "parameters": {}}, {"id": "11", "name": "Ask Pharmacist (Telegram)", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [2496, 464], "parameters": {}}], "connections": {"WhatsApp Trigger": {"main": [[{"node": "Normalize Message", "type": "main", "index": 0}]]}, "Normalize Message": {"main": [[{"node": "Is Media?", "type": "main", "index": 0}]]}, "Is Media?": {"main": [[{"node": "AI Read Request", "type": "main", "index": 0}], [{"node": "AI Read Request", "type": "main", "index": 0}]]}, "AI Read Request": {"main": [[{"node": "Read Catalog", "type": "main", "index": 0}]]}, "Read Catalog": {"main": [[{"node": "Match Catalog", "type": "main", "index": 0}]]}, "Match Catalog": {"main": [[{"node": "Route Request", "type": "main", "index": 0}]]}, "Route Request": {"main": [[{"node": "Save Reservation Lines", "type": "main", "index": 0}], [{"node": "Save Reservation Lines", "type": "main", "index": 0}]]}, "Save Reservation Lines": {"main": [[{"node": "Update Stock", "type": "main", "index": 0}, {"node": "Ask Pharmacist (Telegram)", "type": "main", "index": 0}]]}, "Update Stock": {"main": [[{"node": "Confirm Reservation", "type": "main", "index": 0}]]}}} },
+    ops:  { name: 'smart-pharmacy-ops.json',  data: {"name": "Smart Pharmacy — Operations & Cron (Sanitized)", "nodes": [{"id": "1", "name": "Error Trigger", "type": "n8n-nodes-base.errorTrigger", "typeVersion": 1, "position": [16, 16], "parameters": {}}, {"id": "2", "name": "Classify Error", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [240, 16], "parameters": {}}, {"id": "3", "name": "Every 15 Minutes", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.4, "position": [16, 208], "parameters": {}}, {"id": "4", "name": "Find Expired Lines", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [688, 208], "parameters": {}}, {"id": "5", "name": "Restore Catalog Stock", "type": "n8n-nodes-base.googleSheets", "typeVersion": 4.7, "position": [928, 400], "parameters": {}}, {"id": "6", "name": "Every Day 22:00", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.4, "position": [0, 608], "parameters": {}}, {"id": "7", "name": "Find Low Stock", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [448, 608], "parameters": {}}, {"id": "8", "name": "Post Daily Reorder List", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [688, 608], "parameters": {}}], "connections": {"Error Trigger": {"main": [[{"node": "Classify Error", "type": "main", "index": 0}]]}, "Every 15 Minutes": {"main": [[{"node": "Find Expired Lines", "type": "main", "index": 0}]]}, "Find Expired Lines": {"main": [[{"node": "Restore Catalog Stock", "type": "main", "index": 0}]]}, "Every Day 22:00": {"main": [[{"node": "Find Low Stock", "type": "main", "index": 0}]]}, "Find Low Stock": {"main": [[{"node": "Post Daily Reorder List", "type": "main", "index": 0}]]}}} }
+  };
+
+  let catalog = JSON.parse(JSON.stringify(INITIAL_CATALOG));
+  let reservations = JSON.parse(JSON.stringify(INITIAL_RESERVATIONS));
+  let errors = JSON.parse(JSON.stringify(INITIAL_ERRORS));
+  let activeTab = 'reservations';
+  let activeFilter = 'all';
+  let activeWf = 'main';
+
+  const nav = document.getElementById('nav');
+  document.getElementById('menuToggle').addEventListener('click', () => nav.classList.toggle('open'));
+  document.getElementById('jumpSimBtn').addEventListener('click', () => {
+    document.getElementById('simulator').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function hhmm(offsetHours = 0) {
+    const d = new Date(Date.now() + offsetHours * 3600000);
+    return d.toTimeString().slice(0, 5);
+  }
+  function makeResId() {
+    return 'R-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-1';
+  }
+
+  function levenshtein(a, b) {
+    a = String(a || '').toLowerCase().trim();
+    b = String(b || '').toLowerCase().trim();
+    const m = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) m[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        m[i][j] = Math.min(
+          m[i - 1][j] + 1,
+          m[i][j - 1] + 1,
+          m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+        );
+      }
+    }
+    return m[a.length][b.length];
+  }
+
+  const waChat = document.getElementById('waChat');
+  const n8nLog = document.getElementById('n8nLog');
+  const tgQueue = document.getElementById('tgQueue');
+
+  function pushMsg(text, sender) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + sender;
+    el.innerHTML = esc(text) + '<span class="msg-meta">' + hhmm(0) + '</span>';
+    waChat.appendChild(el);
+    waChat.scrollTop = waChat.scrollHeight;
+  }
+
+  function pushTrace(steps, badgeText) {
+    document.getElementById('n8nBadge').textContent = badgeText;
+    n8nLog.innerHTML = steps.map(s =>
+      `<div class="node-step ${s.cls || ''}"><div class="node-dot"></div><div><b>${esc(s.node)}</b><span>${esc(s.info)}</span></div></div>`
+    ).join('');
+  }
+
+  function renderAll() {
+    // 1. Table
+    const filterBar = document.getElementById('filterBar');
+    filterBar.style.display = activeTab === 'reservations' ? 'flex' : 'none';
+    const area = document.getElementById('tableArea');
+
+    if (activeTab === 'reservations') {
+      const rows = activeFilter === 'all' ? reservations : reservations.filter(r => r.status === activeFilter);
+      if (!rows.length) {
+        area.innerHTML = '<div style="padding:26px;text-align:center;color:var(--muted);font-size:12.5px">No reservations in this view yet. Run a scenario or send a medicine message above.</div>';
+      } else {
+        area.innerHTML = `<table><thead><tr><th>res_id</th><th>Time</th><th>Customer</th><th>SKU</th><th>Medicine</th><th>Qty</th><th>Total</th><th>Status</th><th>Expires</th><th>Approver</th><th>Note</th></tr></thead><tbody>` +
+          rows.map(r => `<tr><td><b>${esc(r.res_id)}</b></td><td>${esc(r.created_at)}</td><td>${esc(r.customer_name)}</td><td>${esc(r.sku)}</td><td>${esc(r.name)}</td><td>${esc(r.qty)}</td><td>${esc(r.total_egp)} EGP</td><td><span class="st-pill st-${esc(r.status)}">${esc(r.status)}</span></td><td>${esc(r.expires_at || '—')}</td><td>${esc(r.pharmacist)}</td><td>${esc(r.note)}</td></tr>`).join('') +
+          `</tbody></table>`;
+      }
+    } else if (activeTab === 'catalog') {
+      area.innerHTML = `<table><thead><tr><th>SKU</th><th>Name</th><th>Active Ingredient</th><th>Strength</th><th>Form</th><th>Price</th><th>Stock</th><th>Reorder</th><th>Controlled</th></tr></thead><tbody>` +
+        catalog.map(c => {
+          const stk = Number(c.stock) || 0;
+          const rdl = Number(c.reorder_level) || 0;
+          return `<tr><td><b>${esc(c.sku)}</b></td><td>${esc(c.name)}</td><td>${esc(c.active_ingredient)}</td><td>${esc(c.strength)}</td><td>${esc(c.form)}</td><td>${esc(c.price_egp)} EGP</td><td><span class="st-pill ${stk <= rdl ? 'st-low' : 'st-ok'}">${stk}</span></td><td>${rdl}</td><td>${esc(c.controlled)}</td></tr>`;
+        }).join('') + `</tbody></table>`;
+    } else {
+      if (!errors.length) {
+        area.innerHTML = '<div style="padding:26px;text-align:center;color:var(--muted);font-size:12.5px">No errors recorded.</div>';
+      } else {
+        area.innerHTML = `<table><thead><tr><th>Time</th><th>Workflow</th><th>Node</th><th>Type</th><th>Message</th></tr></thead><tbody>` +
+          errors.map(e => `<tr><td>${esc(e.time)}</td><td>${esc(e.workflow)}</td><td><b>${esc(e.node)}</b></td><td>${esc(e.type)}</td><td>${esc(e.message)}</td></tr>`).join('') +
+          `</tbody></table>`;
+      }
+    }
+
+    // 2. Inventory gauges
+    document.getElementById('invGrid').innerHTML = catalog.map(c => {
+      const stk = Number(c.stock) || 0;
+      const rdl = Number(c.reorder_level) || 0;
+      const pct = Math.min(100, Math.round((stk / 60) * 100));
+      const col = stk === 0 ? '#c55b55' : (stk <= rdl ? '#bd8c34' : '#15966b');
+      return `<div class="inv-card"><div class="inv-top"><b>${esc(c.name)}</b><span style="color:${col}">${stk} left</span></div><div class="inv-bar"><div class="inv-fill" style="width:${pct}%;background:${col}"></div></div><div class="inv-meta"><span>${esc(c.sku)} · ${esc(c.price_egp)} EGP</span><span>≤ ${rdl}</span></div></div>`;
+    }).join('');
+
+    // 3. Telegram review queue
+    const pending = reservations.filter(r => r.status === 'pending_pharmacist');
+    document.getElementById('tgBadge').textContent = pending.length + ' PENDING';
+    const items = reservations.filter(r => r.pharmacist !== 'Auto');
+    if (!items.length) {
+      tgQueue.innerHTML = '<div class="tg-empty">No cases awaiting review. Trigger a fuzzy match, controlled drug, or prescription scenario.</div>';
+    } else {
+      tgQueue.innerHTML = items.map(r => {
+        const canAct = r.status === 'pending_pharmacist';
+        return `<div class="tg-card"><div class="tg-card-top"><b>${esc(r.res_id)}</b><span class="tg-tag ${esc(r.status)}">${esc(r.status)}</span></div><div class="tg-details">Customer: <b>${esc(r.customer_name)}</b><br>Medicine: <b>${esc(r.name)}</b> × ${esc(r.qty)} (${esc(r.total_egp)} EGP)</div><div class="tg-reason">Reason: ${esc(r.note)}</div>${canAct ? `<div class="tg-actions"><button type="button" class="btn-approve" data-act="approve" data-id="${esc(r.res_id)}">✓ Approve</button><button type="button" class="btn-reject" data-act="reject" data-id="${esc(r.res_id)}">✕ Reject</button></div>` : `<div style="font-size:10.5px;color:var(--muted);margin-top:6px">Handled by <b>${esc(r.pharmacist)}</b></div>`}</div>`;
+      }).join('');
+    }
+  }
+
+  tgQueue.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const act = btn.getAttribute('data-act');
+    const rec = reservations.find(r => r.res_id === id);
+    if (!rec || rec.status !== 'pending_pharmacist') return;
+    const prod = catalog.find(c => c.sku === rec.sku);
+
+    if (act === 'approve') {
+      const avail = prod ? (Number(prod.stock) || 0) : 0;
+      if (!prod || avail < Number(rec.qty)) {
+        rec.status = 'rejected';
+        rec.pharmacist = 'Pharmacist (No Stock)';
+        pushMsg(`⚠️ ${rec.name} has insufficient stock (${avail} available). Please call the pharmacy.`, 'bot');
+        pushTrace([
+          { node: 'Telegram Trigger', info: 'Callback approve on ' + id },
+          { node: 'Apply Decision', info: 'Stock check failed (' + avail + ' available)', cls: 'err' }
+        ], 'NO STOCK');
+      } else {
+        prod.stock = avail - Number(rec.qty);
+        rec.status = 'reserved';
+        rec.expires_at = hhmm(2);
+        rec.pharmacist = 'Pharmacist';
+        pushMsg(`✅ Approved ${rec.res_id}: ${rec.qty} × ${rec.name} (${rec.total_egp} EGP). Reserved for 2 hours.`, 'bot');
+        pushTrace([
+          { node: 'Telegram Trigger', info: 'Callback approve on ' + id },
+          { node: 'Update Stock', info: 'Stock for ' + prod.sku + ' -> ' + prod.stock },
+          { node: 'Tell Customer Approved', info: 'WhatsApp confirmation sent' }
+        ], 'APPROVED');
+      }
+    } else {
+      rec.status = 'rejected';
+      rec.pharmacist = 'Pharmacist';
+      pushMsg(`❌ Request ${rec.res_id} was not approved online. Please contact the pharmacist.`, 'bot');
+      pushTrace([
+        { node: 'Telegram Trigger', info: 'Callback reject on ' + id },
+        { node: 'Update Lines', info: 'Status set to rejected (no stock deducted)', cls: 'warn' }
+      ], 'REJECTED');
+    }
+    renderAll();
+  });
+
+  function runRequest(opts) {
+    pushMsg(opts.label || opts.text, 'user');
+    const m = String(opts.text).match(/(\d+)\s*$/);
+    const qty = m ? Math.max(1, Math.min(5, parseInt(m[1], 10))) : 1;
+    const namePart = String(opts.text).replace(/(\d+)\s*$/, '').trim();
+
+    let best = null, dist = 999;
+    for (const c of catalog) {
+      const d = levenshtein(namePart, c.name);
+      if (d < dist) { dist = d; best = c; }
+    }
+
+    const trace = [
+      { node: 'WhatsApp Trigger', info: opts.voice ? 'Voice note received' : (opts.rx ? 'Prescription photo received' : 'Text message received') },
+      { node: 'AI Read Request', info: opts.voice ? `Transcript: "${namePart}" (confidence: ${opts.voice})` : `Extracted: ${namePart} (qty: ${qty})` }
+    ];
+
+    if (!best || dist > 3) {
+      pushMsg('❓ Could not match "' + namePart + '" in catalog. Please send a clearer name or prescription photo.', 'bot');
+      trace.push({ node: 'Match Catalog', info: 'No match for ' + namePart, cls: 'warn' });
+      pushTrace(trace, 'UNMATCHED');
+      return;
+    }
+
+    const stk = Number(best.stock) || 0;
+    const price = Number(best.price_egp) || 0;
+    const total = qty * price;
+    const isFuzzy = dist > 0;
+    const isLowStock = stk < qty;
+    const isCtrl = String(best.controlled).toLowerCase() === 'yes';
+    const isLowVoice = opts.voice === 'low';
+    const needsReview = Boolean(opts.rx || isFuzzy || isLowStock || isCtrl || isLowVoice);
+
+    const reasons = [];
+    if (opts.rx) reasons.push('Prescription review');
+    if (isFuzzy) reasons.push(`Fuzzy match ("${namePart}" -> ${best.name})`);
+    if (isCtrl) reasons.push('Controlled medication');
+    if (isLowStock) reasons.push(`Stock available: ${stk}`);
+    if (isLowVoice) reasons.push('Low voice confidence');
+
+    trace.push({
+      node: 'Match Catalog',
+      info: `${best.name} (${best.sku}) · Stock ${stk} · Controlled: ${best.controlled}`,
+      cls: needsReview ? 'warn' : ''
+    });
+
+    const resId = makeResId();
+    if (!needsReview) {
+      best.stock = stk - qty;
+      reservations.unshift({
+        res_id: resId, created_at: hhmm(0), customer_name: opts.customer || 'Customer',
+        sku: best.sku, name: `${best.name} ${best.strength}`, qty, total_egp: total,
+        status: 'reserved', expires_at: hhmm(2), pharmacist: 'Auto',
+        note: opts.voice ? 'High-confidence voice auto-reserve' : 'Exact catalog match'
+      });
+      pushMsg(`✅ Reserved (${resId}): ${qty} × ${best.name} ${best.strength} = ${total} EGP.
+Valid for 2 hours.`, 'bot');
+      trace.push({ node: 'Route Request', info: 'Auto Reserve' });
+      trace.push({ node: 'Update Stock', info: `${best.sku} stock -> ${best.stock}` });
+      pushTrace(trace, 'AUTO RESERVED');
+    } else {
+      reservations.unshift({
+        res_id: resId, created_at: hhmm(0), customer_name: opts.customer || 'Customer',
+        sku: best.sku, name: `${best.name} ${best.strength}`, qty, total_egp: total,
+        status: 'pending_pharmacist', expires_at: '', pharmacist: 'Pending',
+        note: reasons.join(' · ')
+      });
+      pushMsg(`⏳ Your request (${resId}) for ${best.name} has been sent to the pharmacist for approval.`, 'bot');
+      trace.push({ node: 'Route Request', info: 'Pharmacist (' + reasons[0] + ')', cls: 'warn' });
+      trace.push({ node: 'Ask Pharmacist (Telegram)', info: 'Approval buttons sent' });
+      pushTrace(trace, 'PENDING REVIEW');
+    }
+    renderAll();
+  }
+
+  document.getElementById('scenarioBar').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-sc]');
+    if (!btn) return;
+    document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sc = btn.getAttribute('data-sc');
+    if (sc === 'auto') runRequest({ text: 'Panadol 1', customer: 'Omar Khaled' });
+    if (sc === 'fuzzy') runRequest({ text: 'Soncor 1', customer: 'Nadia Adel' });
+    if (sc === 'controlled') runRequest({ text: 'Xanax 1', customer: 'Tarek Nabil' });
+    if (sc === 'rx') runRequest({ text: 'Augmentin 1', label: '📸 [Prescription Photo: Augmentin 1g]', customer: 'Mona Samir', rx: true });
+    if (sc === 'voice_hi') runRequest({ text: 'Abimol 1', label: '🎙️ [Voice: "عايز علبة أبيمول"]', customer: 'Karim Fathy', voice: 'high' });
+    if (sc === 'voice_lo') runRequest({ text: 'Concor 1', label: '🎙️ [Voice Noisy: "...كونكور..."]', customer: 'Huda Ali', voice: 'low' });
+    if (sc === 'expire') {
+      const active = reservations.find(r => r.status === 'reserved');
+      if (!active) {
+        pushMsg('ℹ️ No reserved order to expire yet. Click "⚡ 1. Auto Reserve (Panadol)" first.', 'bot');
+        return;
+      }
+      active.status = 'expired';
+      const prod = catalog.find(c => c.sku === active.sku);
+      if (prod) prod.stock = (Number(prod.stock) || 0) + Number(active.qty);
+      pushMsg(`⏰ Reservation ${active.res_id} (${active.name}) expired after 2 hours. Stock restored.`, 'bot');
+      pushTrace([
+        { node: 'Every 15 Minutes', info: 'Cron check ran' },
+        { node: 'Find Expired Lines', info: 'Expired ' + active.res_id, cls: 'warn' },
+        { node: 'Restore Catalog Stock', info: `+${active.qty} returned to ${active.sku}` }
+      ], 'CRON DONE');
+      renderAll();
+    }
+  });
+
+  document.getElementById('quickChips').addEventListener('click', e => {
+    const chip = e.target.closest('button[data-msg]');
+    if (!chip) return;
+    runRequest({ text: chip.getAttribute('data-msg'), customer: 'Customer' });
+  });
+
+  document.getElementById('chatForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const inp = document.getElementById('chatInput');
+    const val = inp.value.trim();
+    if (!val) return;
+    inp.value = '';
+    runRequest({ text: val, customer: 'Customer' });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    catalog = JSON.parse(JSON.stringify(INITIAL_CATALOG));
+    reservations = JSON.parse(JSON.stringify(INITIAL_RESERVATIONS));
+    errors = JSON.parse(JSON.stringify(INITIAL_ERRORS));
+    waChat.innerHTML = '';
+    pushMsg('👋 Ready! Send a medicine name or click one of the 7 scenarios.', 'bot');
+    n8nLog.innerHTML = '<div class="exec-empty">Data reset to Dawaa Pharmacy Data.xlsx.</div>';
+    document.getElementById('n8nBadge').textContent = 'IDLE';
+    document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+    renderAll();
+  });
+
+  document.getElementById('sheetTabs').addEventListener('click', e => {
+    const tab = e.target.closest('button[data-tab]');
+    if (!tab) return;
+    document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTab = tab.getAttribute('data-tab');
+    renderAll();
+  });
+
+  document.getElementById('filterBar').addEventListener('click', e => {
+    const pill = e.target.closest('button[data-filter]');
+    if (!pill) return;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeFilter = pill.getAttribute('data-filter');
+    renderAll();
+  });
+
+  function showWorkflow(key) {
+    activeWf = key;
+    document.getElementById('btnWfMain').classList.toggle('active', key === 'main');
+    document.getElementById('btnWfOps').classList.toggle('active', key === 'ops');
+    document.getElementById('wfName').textContent = WORKFLOWS[key].name;
+    document.getElementById('wfCode').textContent = JSON.stringify(WORKFLOWS[key].data, null, 2);
+  }
+  document.getElementById('btnWfMain').addEventListener('click', () => showWorkflow('main'));
+  document.getElementById('btnWfOps').addEventListener('click', () => showWorkflow('ops'));
+  document.getElementById('copyWfBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('wfCode').textContent);
+      document.getElementById('copyWfBtn').textContent = 'Copied ✓';
+      setTimeout(() => document.getElementById('copyWfBtn').textContent = 'Copy JSON', 1200);
+    } catch (err) {}
+  });
+  document.getElementById('downloadWfBtn').addEventListener('click', () => {
+    const item = WORKFLOWS[activeWf];
+    const blob = new Blob([JSON.stringify(item.data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = item.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  pushMsg('👋 Welcome to Smart Pharmacy! Click any of the 7 scenarios or type a medicine name (e.g. Panadol, Soncor, Xanax).', 'bot');
+  showWorkflow('main');
+  renderAll();
+})();
+</script>
+</body>
+</html>
